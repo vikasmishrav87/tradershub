@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
+import paymentsRouter from './payments.js'
 import { SqliteSessionStore } from './sessionStore.js'
 import { requireAuthApi, requireAuthPage, requireAdmin, verifyCsrfOrigin } from './middleware.js'
 import { db, getUserById, logSecurityEvent } from './db.js'
@@ -37,7 +38,8 @@ app.use(
           "'self'",
           "'unsafe-inline'", // Needed for inline scripts on existing marketing pages
           'https://accounts.google.com',
-          'https://apis.google.com'
+          'https://apis.google.com',
+          'https://checkout.razorpay.com'
         ],
         styleSrc: [
           "'self'",
@@ -50,15 +52,20 @@ app.use(
           "'self'",
           'data:',
           'https://lh3.googleusercontent.com', // Google profile photos
-          'https://*.googleusercontent.com'
+          'https://*.googleusercontent.com',
+          'https://*.razorpay.com'
         ],
         connectSrc: [
           "'self'",
-          'https://accounts.google.com'
+          'https://accounts.google.com',
+          'https://api.razorpay.com',
+          'https://lumberjack.razorpay.com',
+          'https://checkout.razorpay.com'
         ],
         frameSrc: [
           "'self'",
-          'https://accounts.google.com' // Google One-Tap and iframe auth
+          'https://accounts.google.com', // Google One-Tap and iframe auth
+          'https://api.razorpay.com'
         ],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -218,7 +225,13 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 })
 
 // ==========================================
-// 8. STATIC ASSETS & PUBLIC PAGES
+// 8. RAZORPAY PAYMENT APIs
+// ==========================================
+app.use('/api', paymentsRouter)
+app.use('/api/payments', paymentsRouter)
+
+// ==========================================
+// 9. STATIC ASSETS & PUBLIC PAGES
 // ==========================================
 app.use(express.static(publicDir))
 
@@ -251,6 +264,7 @@ const dedicatedPages = [
   'brokers',
   'syllabus',
   'premium',
+  'checkout',
   'indian-market',
   'fibonacci-group',
   'courses',

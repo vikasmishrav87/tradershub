@@ -99,7 +99,7 @@ export function verifyCsrfOrigin(req: Request, res: Response, next: NextFunction
 
   const origin = req.headers['origin']
   const referer = req.headers['referer']
-  const host = req.headers['host']
+  const host = (req.headers['x-forwarded-host'] as string) || req.headers['host']
 
   if (!host) {
     res.status(400).json({ error: 'Missing Host header' })

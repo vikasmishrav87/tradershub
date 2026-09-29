@@ -62,6 +62,24 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_audit_logs_event_type ON audit_logs(event_type);
   CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at);
+
+  CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id TEXT NOT NULL,
+    payment_id TEXT UNIQUE,
+    user_id INTEGER,
+    amount INTEGER NOT NULL,
+    currency TEXT NOT NULL DEFAULT 'INR',
+    status TEXT NOT NULL DEFAULT 'created',
+    receipt TEXT,
+    signature TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_payments_order_id ON payments(order_id);
+  CREATE INDEX IF NOT EXISTS idx_payments_payment_id ON payments(payment_id);
 `)
 
 export interface UserRecord {
@@ -104,6 +122,21 @@ const getUserByGoogleSubStmt = db.prepare(`
 const logAuditEventStmt = db.prepare(`
   INSERT INTO audit_logs (event_type, user_id, ip_address, user_agent, details)
   VALUES (?, ?, ?, ?, ?)
+`)
+
+const insertPaymentStmt = db.prepare(`
+  INSERT INTO payments (order_id, user_id, amount, currency, status, receipt)
+  VALUES (?, ?, ?, ?, 'created', ?)
+`)
+
+const updatePaymentSuccessStmt = db.prepare(`
+  UPDATE payments
+  SET payment_id = ?, signature = ?, status = 'paid', updated_at = datetime('now')
+  WHERE order_id = ?
+`)
+
+const getPaymentByOrderIdStmt = db.prepare(`
+  SELECT * FROM payments WHERE order_id = ?
 `)
 
 /**
@@ -172,3 +205,48 @@ export function logSecurityEvent(
     console.error('Failed to write security audit log:', err)
   }
 }
+
+/**
+ * Record a newly created Razorpay order
+ */
+export function recordPaymentOrder(
+  orderId: string,
+  amount: number,
+  currency: string = 'INR',
+  receipt?: string,
+  userId: number | null = null
+): void {
+  try {
+    insertPaymentStmt.run(orderId, userId, amount, currency, receipt || null)
+  } catch (err) {
+    console.error('Failed to record payment order:', err)
+  }
+}
+
+/**
+ * Record a successful payment verification
+ */
+export function recordPaymentSuccess(
+  orderId: string,
+  paymentId: string,
+  signature: string
+): void {
+  try {
+    updatePaymentSuccessStmt.run(paymentId, signature, orderId)
+  } catch (err) {
+    console.error('Failed to record payment success:', err)
+  }
+}
+
+/**
+ * Retrieve a payment record by its Razorpay Order ID
+ */
+export function getPaymentByOrderId(orderId: string): any {
+  try {
+    return getPaymentByOrderIdStmt.get(orderId) || null
+  } catch (err) {
+    console.error('Failed to get payment by orderId:', err)
+    return null
+  }
+}
+

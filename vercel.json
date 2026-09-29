@@ -24,6 +24,7 @@
     { "source": "/syllabus", "destination": "/syllabus.html" },
     { "source": "/premium", "destination": "/premium.html" },
     { "source": "/paid", "destination": "/premium.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
     { "source": "/indian-market", "destination": "/indian-market.html" },
     { "source": "/fibonacci-group", "destination": "/fibonacci-group.html" },
     { "source": "/courses", "destination": "/courses.html" },
