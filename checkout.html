@@ -215,36 +215,51 @@
         </div>
       </div>
 
-      <!-- Pay Button (PhonePe UPI / Instant) -->
-      <div style="display:flex; flex-direction:column; gap:12px; margin-top:24px;">
-        <button type="button" class="pay-btn-large" id="payPhonePeBtn" onclick="triggerPhonePeCheckout()" style="background:linear-gradient(135deg, #5f259f 0%, #3f1370 100%); color:#fff; border:1px solid #7c3aed; margin-top:0;">
-          <span>🟣</span>
-          <span>PAY VIA PHONEPE (UPI / QR / ALL APPS)</span>
-        </button>
-      </div>
-
-      <!-- International Payments (PayPal) -->
-      <div style="position:relative; text-align:center; margin: 24px 0 16px;">
-        <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);"></div>
-        <span style="position:relative; background:#0f1218; padding:0 14px; color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
-          🌐 International / Global Payments
-        </span>
-      </div>
-
-      <div style="background:#161b24; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:20px; margin-bottom:12px;">
+      <!-- Instant PayPal Checkout Box -->
+      <div style="background:#161b24; border:1px solid rgba(245,158,11,0.25); border-radius:10px; padding:24px; margin-top:24px; box-shadow:0 4px 20px rgba(0,0,0,0.4);">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <div>
-            <div style="font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+            <div style="font-size:16px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
               <span>🅿️ Pay with PayPal</span>
             </div>
-            <div style="font-size:11px; color:#94a3b8; margin-top:2px;">International Cards, PayPal Balance, Pay Later</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:3px;">Instant Activation with Credit/Debit Cards, PayPal Balance, Pay Later</div>
           </div>
           <div style="text-align:right;">
-            <div id="paypalUsdAmount" style="font-size:18px; font-weight:700; color:#38bdf8;">$60.00 USD</div>
-            <div style="font-size:10px; color:#64748b;">International Price</div>
+            <div id="paypalUsdAmount" style="font-family:'Bebas Neue',sans-serif; font-size:28px; color:#f59e0b;">$60.00 USD</div>
+            <div style="font-size:10px; color:#64748b;">Instant Processing</div>
           </div>
         </div>
         <div id="paypal-button-container" style="min-height:45px;"></div>
+      </div>
+
+      <!-- Manual UPI / Crypto Alternative -->
+      <div style="position:relative; text-align:center; margin: 28px 0 16px;">
+        <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.08);"></div>
+        <span style="position:relative; background:#0f1218; padding:0 14px; color:#64748b; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
+          Or Direct Manual Transfer
+        </span>
+      </div>
+
+      <div style="background:#12161f; border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:16px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:12px;">
+          <div style="background:#161b24; padding:12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:4px;">UPI ID</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <code style="color:#f59e0b; font-size:12px;">vikasmishraji87-2@oksbi</code>
+              <button onclick="navigator.clipboard.writeText('vikasmishraji87-2@oksbi'); showStatusToast('UPI ID copied to clipboard!', 'success');" style="background:#222a38; border:1px solid #334155; color:#fff; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer;">Copy</button>
+            </div>
+          </div>
+          <div style="background:#161b24; padding:12px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+            <div style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; margin-bottom:4px;">USDT (BEP-20)</div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <code style="color:#10b981; font-size:11px;">0x583c...ee0e</code>
+              <button onclick="navigator.clipboard.writeText('0x583c468d8408f588032870f51e1b3dd4af80ee0e'); showStatusToast('USDT Address copied!', 'success');" style="background:#222a38; border:1px solid #334155; color:#fff; padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer;">Copy</button>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center; margin-top:12px;">
+          <a href="https://t.me/+FNIBb-pEK0g4MGI1" target="_blank" style="color:#38bdf8; font-size:12px; text-decoration:none;">✈️ After manual payment, send screenshot on Telegram for instant access →</a>
+        </div>
       </div>
 
       <!-- Verified Receipt Section (Shows after successful signature check) -->
@@ -269,8 +284,8 @@
       <!-- Security / Guarantee -->
       <div style="display:flex; justify-content:center; gap:24px; margin-top:24px; color:#64748b; font-size:11px; flex-wrap:wrap;">
         <span>🔒 256-Bit SSL Encrypted</span>
-        <span>🛡️ Server-Side Signature Verification</span>
-        <span>💳 UPI, PhonePe, Cards, NetBanking</span>
+        <span>🛡️ Server-Side Verification</span>
+        <span>💳 Cards, PayPal, UPI & USDT Manual</span>
       </div>
     </div>
   </div>
@@ -326,12 +341,12 @@
     let currentAmount = 5000;
     let currentPlan = 'Indian Market Paid Desk (Monthly)';
 
-    // Handle return from PhonePe callback
+    // Handle return from payment callback
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('payment_success') === 'true') {
       const txId = urlParams.get('txId') || urlParams.get('payment_id') || 'Verified';
       document.getElementById('recOrderId').textContent = txId;
-      document.getElementById('recPaymentId').textContent = (urlParams.get('gateway') || 'Online') + ' Verified';
+      document.getElementById('recPaymentId').textContent = 'Online Verified';
       document.getElementById('receiptBox').style.display = 'block';
     } else if (urlParams.get('error')) {
       showStatusToast('Payment was not completed: ' + urlParams.get('error'), 'error');
@@ -373,35 +388,6 @@
         }
       })
       .catch(() => {});
-
-    // PhonePe Checkout Handler
-    async function triggerPhonePeCheckout() {
-      const phone = document.getElementById('custPhone').value;
-      const amountInPaise = currentAmount * 100;
-
-      showStatusToast('Connecting to PhonePe Payment Gateway...', 'info');
-
-      try {
-        const res = await fetch('/api/phonepe/pay', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: amountInPaise,
-            planName: currentPlan,
-            phone: phone
-          })
-        });
-
-        const data = await res.json();
-        if (res.ok && data.success && data.redirectUrl) {
-          window.location.href = data.redirectUrl;
-        } else {
-          showStatusToast(data.error || 'PhonePe payment could not be initiated.', 'error');
-        }
-      } catch (err) {
-        showStatusToast(err.message || 'PhonePe connection error.', 'error');
-      }
-    }
 
     // PayPal Official Smart Buttons Handler
     if (window.paypal) {

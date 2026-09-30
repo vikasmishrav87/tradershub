@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
-import phonepeRouter from './phonepe.js'
 import paypalRouter from './paypal.js'
 import { SqliteSessionStore } from './sessionStore.js'
 import { requireAuthApi, requireAuthPage, requireAdmin, verifyCsrfOrigin } from './middleware.js'
@@ -58,8 +57,6 @@ app.use(
           'data:',
           'https://lh3.googleusercontent.com', // Google profile photos
           'https://*.googleusercontent.com',
-          'https://*.phonepe.com',
-          'https://phonepe.com',
           'https://www.paypalobjects.com',
           'https://*.paypalobjects.com',
           'https://*.paypal.com'
@@ -67,8 +64,6 @@ app.use(
         connectSrc: [
           "'self'",
           'https://accounts.google.com',
-          'https://api.phonepe.com',
-          'https://api-preprod.phonepe.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://api-m.paypal.com',
@@ -78,10 +73,6 @@ app.use(
         frameSrc: [
           "'self'",
           'https://accounts.google.com', // Google One-Tap and iframe auth
-          'https://api.phonepe.com',
-          'https://api-preprod.phonepe.com',
-          'https://mercury-uat.phonepe.com',
-          'https://mercury.phonepe.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com',
@@ -92,10 +83,6 @@ app.use(
         formAction: [
           "'self'",
           'https://accounts.google.com',
-          'https://api.phonepe.com',
-          'https://api-preprod.phonepe.com',
-          'https://mercury-uat.phonepe.com',
-          'https://mercury.phonepe.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com'
@@ -255,9 +242,8 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 })
 
 // ==========================================
-// 8. PAYMENT GATEWAY APIs (PhonePe & PayPal)
+// 8. PAYMENT GATEWAY APIs (PayPal)
 // ==========================================
-app.use('/api/phonepe', phonepeRouter)
 app.use('/api/paypal', paypalRouter)
 
 // ==========================================
