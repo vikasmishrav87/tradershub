@@ -35,6 +35,9 @@
     { "source": "/ai-chat", "destination": "/chat.html" },
     { "source": "/feedback", "destination": "/feedback.html" },
     { "source": "/suggestions", "destination": "/feedback.html" },
-    { "source": "/contact", "destination": "/contact.html" }
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/refund-policy", "destination": "/refund-policy.html" }
   ]
 }

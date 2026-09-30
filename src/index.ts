@@ -8,6 +8,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
 import paymentsRouter from './payments.js'
+import phonepeRouter from './phonepe.js'
 import { SqliteSessionStore } from './sessionStore.js'
 import { requireAuthApi, requireAuthPage, requireAdmin, verifyCsrfOrigin } from './middleware.js'
 import { db, getUserById, logSecurityEvent } from './db.js'
@@ -53,23 +54,38 @@ app.use(
           'data:',
           'https://lh3.googleusercontent.com', // Google profile photos
           'https://*.googleusercontent.com',
-          'https://*.razorpay.com'
+          'https://*.razorpay.com',
+          'https://*.phonepe.com',
+          'https://phonepe.com'
         ],
         connectSrc: [
           "'self'",
           'https://accounts.google.com',
           'https://api.razorpay.com',
           'https://lumberjack.razorpay.com',
-          'https://checkout.razorpay.com'
+          'https://checkout.razorpay.com',
+          'https://api.phonepe.com',
+          'https://api-preprod.phonepe.com'
         ],
         frameSrc: [
           "'self'",
           'https://accounts.google.com', // Google One-Tap and iframe auth
-          'https://api.razorpay.com'
+          'https://api.razorpay.com',
+          'https://api.phonepe.com',
+          'https://api-preprod.phonepe.com',
+          'https://mercury-uat.phonepe.com',
+          'https://mercury.phonepe.com'
         ],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
-        formAction: ["'self'", 'https://accounts.google.com'],
+        formAction: [
+          "'self'",
+          'https://accounts.google.com',
+          'https://api.phonepe.com',
+          'https://api-preprod.phonepe.com',
+          'https://mercury-uat.phonepe.com',
+          'https://mercury.phonepe.com'
+        ],
         frameAncestors: ["'none'"]
       }
     },
@@ -225,10 +241,11 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 })
 
 // ==========================================
-// 8. RAZORPAY PAYMENT APIs
+// 8. PAYMENT GATEWAY APIs (Razorpay & PhonePe)
 // ==========================================
 app.use('/api', paymentsRouter)
 app.use('/api/payments', paymentsRouter)
+app.use('/api/phonepe', phonepeRouter)
 
 // ==========================================
 // 9. STATIC ASSETS & PUBLIC PAGES
@@ -273,7 +290,10 @@ const dedicatedPages = [
   'reviews',
   'chat',
   'feedback',
-  'contact'
+  'contact',
+  'privacy',
+  'terms',
+  'refund-policy'
 ]
 
 dedicatedPages.forEach(page => {

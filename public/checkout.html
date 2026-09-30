@@ -215,14 +215,18 @@
         </div>
       </div>
 
-      <!-- Pay Button -->
-      <button type="button" class="pay-btn-large" id="payButton" onclick="triggerCheckout()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="5" width="20" height="14" rx="2"/>
-          <line x1="2" y1="10" x2="22" y2="10"/>
-        </svg>
-        <span>PAY NOW VIA RAZORPAY</span>
-      </button>
+      <!-- Pay Buttons (PhonePe & Razorpay) -->
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:24px;">
+        <button type="button" class="pay-btn-large" id="payPhonePeBtn" onclick="triggerPhonePeCheckout()" style="background:linear-gradient(135deg, #5f259f 0%, #3f1370 100%); color:#fff; border:1px solid #7c3aed; margin-top:0;">
+          <span>🟣</span>
+          <span>PAY VIA PHONEPE (UPI / QR / ALL APPS)</span>
+        </button>
+
+        <button type="button" class="pay-btn-large" id="payRazorpayBtn" onclick="triggerCheckout()" style="margin-top:0; font-size:18px; padding:12px;">
+          <span>⚡</span>
+          <span>PAY VIA RAZORPAY (CARDS / NETBANKING)</span>
+        </button>
+      </div>
 
       <!-- Verified Receipt Section (Shows after successful signature check) -->
       <div id="receiptBox" class="receipt-box">
@@ -247,7 +251,7 @@
       <div style="display:flex; justify-content:center; gap:24px; margin-top:24px; color:#64748b; font-size:11px; flex-wrap:wrap;">
         <span>🔒 256-Bit SSL Encrypted</span>
         <span>🛡️ Server-Side Signature Verification</span>
-        <span>💳 UPI, Credit/Debit Cards, NetBanking, EMI</span>
+        <span>💳 UPI, PhonePe, Cards, NetBanking</span>
       </div>
     </div>
   </div>
@@ -262,6 +266,17 @@
   <script>
     let currentAmount = 5000;
     let currentPlan = 'Indian Market Paid Desk (Monthly)';
+
+    // Handle return from PhonePe or Razorpay callback
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('payment_success') === 'true') {
+      const txId = urlParams.get('txId') || urlParams.get('payment_id') || 'Verified';
+      document.getElementById('recOrderId').textContent = txId;
+      document.getElementById('recPaymentId').textContent = (urlParams.get('gateway') || 'Online') + ' Verified';
+      document.getElementById('receiptBox').style.display = 'block';
+    } else if (urlParams.get('error')) {
+      if (window.showStatusToast) window.showStatusToast('Payment was not completed: ' + urlParams.get('error'), 'error');
+    }
 
     function selectPlan(el, amount, planName) {
       document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
@@ -287,6 +302,36 @@
       })
       .catch(() => {});
 
+    // PhonePe Checkout Handler
+    async function triggerPhonePeCheckout() {
+      const phone = document.getElementById('custPhone').value;
+      const amountInPaise = currentAmount * 100;
+
+      window.showStatusToast('Connecting to PhonePe Payment Gateway...', 'info');
+
+      try {
+        const res = await fetch('/api/phonepe/pay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: amountInPaise,
+            planName: currentPlan,
+            phone: phone
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success && data.redirectUrl) {
+          window.location.href = data.redirectUrl;
+        } else {
+          window.showStatusToast(data.error || 'PhonePe payment could not be initiated.', 'error');
+        }
+      } catch (err) {
+        window.showStatusToast(err.message || 'PhonePe connection error.', 'error');
+      }
+    }
+
+    // Razorpay Modal Checkout Handler
     function triggerCheckout() {
       const name = document.getElementById('custName').value;
       const email = document.getElementById('custEmail').value;
@@ -305,7 +350,6 @@
           document.getElementById('recOrderId').textContent = rzpResponse.razorpay_order_id;
           document.getElementById('recPaymentId').textContent = rzpResponse.razorpay_payment_id;
           document.getElementById('receiptBox').style.display = 'block';
-          document.getElementById('payButton').style.display = 'none';
         },
         onFailure: function(err) {
           console.warn('Payment failed or cancelled:', err);
