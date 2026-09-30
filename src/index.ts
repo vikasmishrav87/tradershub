@@ -9,6 +9,7 @@ import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
 import paymentsRouter from './payments.js'
 import phonepeRouter from './phonepe.js'
+import paypalRouter from './paypal.js'
 import { SqliteSessionStore } from './sessionStore.js'
 import { requireAuthApi, requireAuthPage, requireAdmin, verifyCsrfOrigin } from './middleware.js'
 import { db, getUserById, logSecurityEvent } from './db.js'
@@ -40,13 +41,18 @@ app.use(
           "'unsafe-inline'", // Needed for inline scripts on existing marketing pages
           'https://accounts.google.com',
           'https://apis.google.com',
-          'https://checkout.razorpay.com'
+          'https://checkout.razorpay.com',
+          'https://www.paypal.com',
+          'https://*.paypal.com',
+          'https://www.paypalobjects.com',
+          'https://*.paypalobjects.com'
         ],
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
-          'https://accounts.google.com'
+          'https://accounts.google.com',
+          'https://*.paypal.com'
         ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
         imgSrc: [
@@ -56,7 +62,10 @@ app.use(
           'https://*.googleusercontent.com',
           'https://*.razorpay.com',
           'https://*.phonepe.com',
-          'https://phonepe.com'
+          'https://phonepe.com',
+          'https://www.paypalobjects.com',
+          'https://*.paypalobjects.com',
+          'https://*.paypal.com'
         ],
         connectSrc: [
           "'self'",
@@ -65,7 +74,12 @@ app.use(
           'https://lumberjack.razorpay.com',
           'https://checkout.razorpay.com',
           'https://api.phonepe.com',
-          'https://api-preprod.phonepe.com'
+          'https://api-preprod.phonepe.com',
+          'https://www.paypal.com',
+          'https://*.paypal.com',
+          'https://api-m.paypal.com',
+          'https://api-m.sandbox.paypal.com',
+          'https://www.sandbox.paypal.com'
         ],
         frameSrc: [
           "'self'",
@@ -74,7 +88,11 @@ app.use(
           'https://api.phonepe.com',
           'https://api-preprod.phonepe.com',
           'https://mercury-uat.phonepe.com',
-          'https://mercury.phonepe.com'
+          'https://mercury.phonepe.com',
+          'https://www.paypal.com',
+          'https://*.paypal.com',
+          'https://www.sandbox.paypal.com',
+          'https://*.sandbox.paypal.com'
         ],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
@@ -84,7 +102,10 @@ app.use(
           'https://api.phonepe.com',
           'https://api-preprod.phonepe.com',
           'https://mercury-uat.phonepe.com',
-          'https://mercury.phonepe.com'
+          'https://mercury.phonepe.com',
+          'https://www.paypal.com',
+          'https://*.paypal.com',
+          'https://www.sandbox.paypal.com'
         ],
         frameAncestors: ["'none'"]
       }
@@ -241,11 +262,12 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 })
 
 // ==========================================
-// 8. PAYMENT GATEWAY APIs (Razorpay & PhonePe)
+// 8. PAYMENT GATEWAY APIs (Razorpay, PhonePe & PayPal)
 // ==========================================
 app.use('/api', paymentsRouter)
 app.use('/api/payments', paymentsRouter)
 app.use('/api/phonepe', phonepeRouter)
+app.use('/api/paypal', paypalRouter)
 
 // ==========================================
 // 9. STATIC ASSETS & PUBLIC PAGES

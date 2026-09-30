@@ -8,7 +8,8 @@
     "start": "tsx src/index.ts",
     "build": "tsc",
     "test:security": "tsx test/security.test.ts",
-    "test:payments": "tsx test/payments.test.ts"
+    "test:payments": "tsx test/payments.test.ts",
+    "test:paypal": "tsx test/paypal.test.ts"
   },
   "keywords": [],
   "author": "",

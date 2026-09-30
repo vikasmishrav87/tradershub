@@ -8,6 +8,8 @@
   <link rel="stylesheet" href="/css/main.css">
   <!-- Razorpay Official Checkout SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- PayPal Official Smart Buttons SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=BAA3yFYfK1N5v-5Qi3EDhXfPA07AIHDq_mAOmTYiuqeXNfAldsC5Z6YNE_E72jTAe7514GuerRdt2_fYVw&currency=USD"></script>
   <style>
     .checkout-wrap {
       max-width: 900px;
@@ -228,6 +230,30 @@
         </button>
       </div>
 
+      <!-- International Payments (PayPal) -->
+      <div style="position:relative; text-align:center; margin: 24px 0 16px;">
+        <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(255,255,255,0.1);"></div>
+        <span style="position:relative; background:#0f1218; padding:0 14px; color:#94a3b8; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em;">
+          🌐 International / Global Payments
+        </span>
+      </div>
+
+      <div style="background:#161b24; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:20px; margin-bottom:12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <div style="font-size:14px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+              <span>🅿️ Pay with PayPal</span>
+            </div>
+            <div style="font-size:11px; color:#94a3b8; margin-top:2px;">International Cards, PayPal Balance, Pay Later</div>
+          </div>
+          <div style="text-align:right;">
+            <div id="paypalUsdAmount" style="font-size:18px; font-weight:700; color:#38bdf8;">$60.00 USD</div>
+            <div style="font-size:10px; color:#64748b;">International Price</div>
+          </div>
+        </div>
+        <div id="paypal-button-container" style="min-height:45px;"></div>
+      </div>
+
       <!-- Verified Receipt Section (Shows after successful signature check) -->
       <div id="receiptBox" class="receipt-box">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
@@ -278,6 +304,15 @@
       if (window.showStatusToast) window.showStatusToast('Payment was not completed: ' + urlParams.get('error'), 'error');
     }
 
+    function getPlanUsd(amount) {
+      if (amount === 1) return 1.00;
+      if (amount === 5000) return 60.00;
+      if (amount === 7000) return 85.00;
+      if (amount === 10000) return 120.00;
+      if (amount === 17000) return 200.00;
+      return Math.max(1, Math.round(amount / 85));
+    }
+
     function selectPlan(el, amount, planName) {
       document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
       el.classList.add('selected');
@@ -289,6 +324,10 @@
 
       document.getElementById('summaryPlanName').textContent = planName;
       document.getElementById('summaryAmount').textContent = '₹' + amount.toLocaleString('en-IN');
+      const usdEl = document.getElementById('paypalUsdAmount');
+      if (usdEl) {
+        usdEl.textContent = '$' + getPlanUsd(amount).toFixed(2) + ' USD';
+      }
     }
 
     // Auto-fill logged in user info if session exists
@@ -355,6 +394,81 @@
           console.warn('Payment failed or cancelled:', err);
         }
       });
+    }
+
+    // PayPal Official Smart Buttons Handler
+    if (window.paypal) {
+      paypal.Buttons({
+        style: {
+          layout: 'vertical',
+          color: 'gold',
+          shape: 'rect',
+          label: 'paypal'
+        },
+        createOrder: function(data, actions) {
+          const usdVal = getPlanUsd(currentAmount);
+          return actions.order.create({
+            purchase_units: [{
+              description: currentPlan.substring(0, 127),
+              amount: {
+                currency_code: 'USD',
+                value: usdVal.toFixed(2)
+              }
+            }]
+          });
+        },
+        onApprove: async function(data, actions) {
+          if (window.showStatusToast) {
+            window.showStatusToast('Processing and verifying PayPal transaction...', 'info');
+          }
+          try {
+            const details = await actions.order.capture();
+            const captureId = details.purchase_units?.[0]?.payments?.captures?.[0]?.id || details.id;
+
+            // Notify backend to verify and record transaction in SQLite
+            const res = await fetch('/api/paypal/record', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: details.id,
+                captureId: captureId,
+                amount: getPlanUsd(currentAmount),
+                currency: 'USD',
+                planName: currentPlan,
+                status: details.status,
+                payer: details.payer
+              })
+            });
+
+            const result = await res.json();
+
+            document.getElementById('recOrderId').textContent = details.id;
+            document.getElementById('recPaymentId').textContent = 'PayPal: ' + captureId;
+            document.getElementById('receiptBox').style.display = 'block';
+            document.getElementById('receiptBox').scrollIntoView({ behavior: 'smooth' });
+
+            if (window.showStatusToast) {
+              window.showStatusToast('PayPal payment successful! Account activated.', 'success');
+            }
+          } catch (err) {
+            console.error('PayPal capture error:', err);
+            if (window.showStatusToast) {
+              window.showStatusToast('Payment completed: ' + (err.message || err), 'warning');
+            }
+          }
+        },
+        onError: function(err) {
+          console.error('PayPal checkout error:', err);
+          if (window.showStatusToast) {
+            window.showStatusToast('PayPal checkout encountered an issue: ' + (err.message || 'Please check details.'), 'error');
+          }
+        },
+        onCancel: function() {
+          if (window.showStatusToast) {
+            window.showStatusToast('PayPal payment cancelled by user.', 'info');
+          }
+        }
+      }).render('#paypal-button-container');
     }
   </script>
 </body>
