@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
-import paymentsRouter from './payments.js'
 import phonepeRouter from './phonepe.js'
 import paypalRouter from './paypal.js'
 import { SqliteSessionStore } from './sessionStore.js'
@@ -41,7 +40,6 @@ app.use(
           "'unsafe-inline'", // Needed for inline scripts on existing marketing pages
           'https://accounts.google.com',
           'https://apis.google.com',
-          'https://checkout.razorpay.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.paypalobjects.com',
@@ -60,7 +58,6 @@ app.use(
           'data:',
           'https://lh3.googleusercontent.com', // Google profile photos
           'https://*.googleusercontent.com',
-          'https://*.razorpay.com',
           'https://*.phonepe.com',
           'https://phonepe.com',
           'https://www.paypalobjects.com',
@@ -70,9 +67,6 @@ app.use(
         connectSrc: [
           "'self'",
           'https://accounts.google.com',
-          'https://api.razorpay.com',
-          'https://lumberjack.razorpay.com',
-          'https://checkout.razorpay.com',
           'https://api.phonepe.com',
           'https://api-preprod.phonepe.com',
           'https://www.paypal.com',
@@ -84,7 +78,6 @@ app.use(
         frameSrc: [
           "'self'",
           'https://accounts.google.com', // Google One-Tap and iframe auth
-          'https://api.razorpay.com',
           'https://api.phonepe.com',
           'https://api-preprod.phonepe.com',
           'https://mercury-uat.phonepe.com',
@@ -262,10 +255,8 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 })
 
 // ==========================================
-// 8. PAYMENT GATEWAY APIs (Razorpay, PhonePe & PayPal)
+// 8. PAYMENT GATEWAY APIs (PhonePe & PayPal)
 // ==========================================
-app.use('/api', paymentsRouter)
-app.use('/api/payments', paymentsRouter)
 app.use('/api/phonepe', phonepeRouter)
 app.use('/api/paypal', paypalRouter)
 

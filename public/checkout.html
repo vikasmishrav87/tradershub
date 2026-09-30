@@ -6,8 +6,6 @@
   <title>Checkout & Instant Payment — Traders Hub</title>
   <link rel="icon" type="image/jpeg" href="/logo.png">
   <link rel="stylesheet" href="/css/main.css">
-  <!-- Razorpay Official Checkout SDK -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <!-- PayPal Official Smart Buttons SDK -->
   <script src="https://www.paypal.com/sdk/js?client-id=BAA3yFYfK1N5v-5Qi3EDhXfPA07AIHDq_mAOmTYiuqeXNfAldsC5Z6YNE_E72jTAe7514GuerRdt2_fYVw&currency=USD"></script>
   <style>
@@ -147,7 +145,7 @@
           <span style="color:#f59e0b; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;">SECURE INSTANT CHECKOUT</span>
           <h1 style="font-family:'Bebas Neue',sans-serif; font-size:32px; color:#fff; margin:4px 0 0;">SELECT DESK OR MEMBERSHIP PLAN</h1>
         </div>
-        <img src="https://badge.razorpay.com/badge-dark.png" alt="Razorpay Verified" style="height:38px;">
+        <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:6px; padding:6px 14px; font-size:12px; color:#f59e0b; font-weight:700; letter-spacing:0.05em;">🔒 100% SECURE CHECKOUT</div>
       </div>
 
       <!-- Plan Selection Options -->
@@ -217,16 +215,11 @@
         </div>
       </div>
 
-      <!-- Pay Buttons (PhonePe & Razorpay) -->
+      <!-- Pay Button (PhonePe UPI / Instant) -->
       <div style="display:flex; flex-direction:column; gap:12px; margin-top:24px;">
         <button type="button" class="pay-btn-large" id="payPhonePeBtn" onclick="triggerPhonePeCheckout()" style="background:linear-gradient(135deg, #5f259f 0%, #3f1370 100%); color:#fff; border:1px solid #7c3aed; margin-top:0;">
           <span>🟣</span>
           <span>PAY VIA PHONEPE (UPI / QR / ALL APPS)</span>
-        </button>
-
-        <button type="button" class="pay-btn-large" id="payRazorpayBtn" onclick="triggerCheckout()" style="margin-top:0; font-size:18px; padding:12px;">
-          <span>⚡</span>
-          <span>PAY VIA RAZORPAY (CARDS / NETBANKING)</span>
         </button>
       </div>
 
@@ -286,14 +279,54 @@
     © 2026 Traders Hub. All Rights Reserved. Pure Price Action & Fibonacci Mastery.
   </footer>
 
-  <!-- Reusable Razorpay Helper Script -->
-  <script src="/js/razorpay-checkout.js"></script>
-
   <script>
+    function showStatusToast(message, type = 'info') {
+      let toast = document.getElementById('th-status-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'th-status-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '24px';
+        toast.style.right = '24px';
+        toast.style.padding = '14px 20px';
+        toast.style.borderRadius = '8px';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        toast.style.zIndex = '999999';
+        toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+        toast.style.transition = 'all 0.3s ease';
+        document.body.appendChild(toast);
+      }
+
+      if (type === 'error') {
+        toast.style.background = '#ef4444';
+        toast.style.color = '#fff';
+        toast.style.border = '1px solid #dc2626';
+      } else if (type === 'success') {
+        toast.style.background = '#10b981';
+        toast.style.color = '#fff';
+        toast.style.border = '1px solid #059669';
+      } else {
+        toast.style.background = '#1e293b';
+        toast.style.color = '#f8fafc';
+        toast.style.border = '1px solid #334155';
+      }
+
+      toast.textContent = message;
+      toast.style.display = 'block';
+      toast.style.opacity = '1';
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 4500);
+    }
+    window.showStatusToast = showStatusToast;
+
     let currentAmount = 5000;
     let currentPlan = 'Indian Market Paid Desk (Monthly)';
 
-    // Handle return from PhonePe or Razorpay callback
+    // Handle return from PhonePe callback
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('payment_success') === 'true') {
       const txId = urlParams.get('txId') || urlParams.get('payment_id') || 'Verified';
@@ -301,7 +334,7 @@
       document.getElementById('recPaymentId').textContent = (urlParams.get('gateway') || 'Online') + ' Verified';
       document.getElementById('receiptBox').style.display = 'block';
     } else if (urlParams.get('error')) {
-      if (window.showStatusToast) window.showStatusToast('Payment was not completed: ' + urlParams.get('error'), 'error');
+      showStatusToast('Payment was not completed: ' + urlParams.get('error'), 'error');
     }
 
     function getPlanUsd(amount) {
@@ -346,7 +379,7 @@
       const phone = document.getElementById('custPhone').value;
       const amountInPaise = currentAmount * 100;
 
-      window.showStatusToast('Connecting to PhonePe Payment Gateway...', 'info');
+      showStatusToast('Connecting to PhonePe Payment Gateway...', 'info');
 
       try {
         const res = await fetch('/api/phonepe/pay', {
@@ -363,37 +396,11 @@
         if (res.ok && data.success && data.redirectUrl) {
           window.location.href = data.redirectUrl;
         } else {
-          window.showStatusToast(data.error || 'PhonePe payment could not be initiated.', 'error');
+          showStatusToast(data.error || 'PhonePe payment could not be initiated.', 'error');
         }
       } catch (err) {
-        window.showStatusToast(err.message || 'PhonePe connection error.', 'error');
+        showStatusToast(err.message || 'PhonePe connection error.', 'error');
       }
-    }
-
-    // Razorpay Modal Checkout Handler
-    function triggerCheckout() {
-      const name = document.getElementById('custName').value;
-      const email = document.getElementById('custEmail').value;
-      const phone = document.getElementById('custPhone').value;
-
-      window.payWithRazorpay({
-        amount: currentAmount,
-        inPaise: false,
-        planName: currentPlan,
-        prefill: {
-          name: name,
-          email: email,
-          contact: phone
-        },
-        onSuccess: function(verifyData, rzpResponse) {
-          document.getElementById('recOrderId').textContent = rzpResponse.razorpay_order_id;
-          document.getElementById('recPaymentId').textContent = rzpResponse.razorpay_payment_id;
-          document.getElementById('receiptBox').style.display = 'block';
-        },
-        onFailure: function(err) {
-          console.warn('Payment failed or cancelled:', err);
-        }
-      });
     }
 
     // PayPal Official Smart Buttons Handler

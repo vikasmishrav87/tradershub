@@ -207,7 +207,7 @@ export function logSecurityEvent(
 }
 
 /**
- * Record a newly created Razorpay order
+ * Record a newly created payment order
  */
 export function recordPaymentOrder(
   orderId: string,
@@ -239,7 +239,7 @@ export function recordPaymentSuccess(
 }
 
 /**
- * Retrieve a payment record by its Razorpay Order ID
+ * Retrieve a payment record by its Order ID
  */
 export function getPaymentByOrderId(orderId: string): any {
   try {
