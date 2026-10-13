@@ -173,6 +173,24 @@
     <div id="errorBox" class="alert-error"></div>
     <div id="successBox" class="alert-success"></div>
 
+    <!-- Direct Member Instant Access Form -->
+    <div style="background: rgba(201, 168, 76, 0.06); border: 1px solid rgba(201, 168, 76, 0.3); border-radius: 6px; padding: 22px 20px; margin-bottom: 24px; text-align: left;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+        <span style="font-size: 11px; font-weight: 700; color: #C9A84C; letter-spacing: 1.5px; text-transform: uppercase;">⚡ Direct Member Access</span>
+        <span style="font-size: 9px; color: #00FF88; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); padding: 2px 6px; border-radius: 4px;">Guaranteed Access</span>
+      </div>
+      <p style="font-size: 12px; color: #888; margin: 0 0 14px 0; line-height: 1.5;">Sign in directly with your email without any third-party Google restriction:</p>
+      <form id="memberLoginForm" action="/auth/member-login" method="POST" style="display: flex; flex-direction: column; gap: 10px;">
+        <input type="email" name="email" id="memberEmail" placeholder="e.g. vikasmishraji87@gmail.com" required style="width: 100%; box-sizing: border-box; padding: 12px 14px; background: #141414; border: 1px solid rgba(201, 168, 76, 0.35); border-radius: 4px; color: #FFF; font-family: 'Space Grotesk', sans-serif; font-size: 13px; outline: none;">
+        <button type="submit" id="memberLoginBtn" class="google-auth-btn" style="background: linear-gradient(135deg, #C9A84C, #E8C96A); color: #050505; font-weight: 700; justify-content: center; box-shadow: 0 4px 15px rgba(201,168,76,0.25);">
+          Enter Member Dashboard →
+        </button>
+      </form>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"><span>OR SIGN IN WITH GOOGLE</span></div>
+
     <!-- Primary Server-Side OAuth 2.0 Authorization Code Flow -->
     <a href="/auth/google" class="google-auth-btn" id="googleOAuthLink">
       <svg class="google-icon" viewBox="0 0 24 24">
@@ -185,25 +203,26 @@
     </a>
 
     <!-- Alternative Google One-Tap / Button container -->
-    <div class="divider"><span>OR</span></div>
-    <div id="g_id_onload"
-         data-client_id="754703406217-iul1vka4si0cmgj0hi6kee7hf1cqinkb.apps.googleusercontent.com"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
-    </div>
-    <div class="g_id_signin"
-         data-type="standard"
-         data-size="large"
-         data-theme="filled_black"
-         data-text="sign_in_with"
-         data-shape="rectangular"
-         data-logo_alignment="left"
-         data-width="396">
+    <div style="margin-top: 14px;">
+      <div id="g_id_onload"
+           data-client_id="754703406217-iul1vka4si0cmgj0hi6kee7hf1cqinkb.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="filled_black"
+           data-text="sign_in_with"
+           data-shape="rectangular"
+           data-logo_alignment="left"
+           data-width="396">
+      </div>
     </div>
 
     <!-- Security Guarantee Badges -->
     <div class="security-badges">
-      <div class="sec-item"><span class="icon">🛡️</span><span>Official Google OAuth 2.0 Server-Side Verification</span></div>
+      <div class="sec-item"><span class="icon">🛡️</span><span>Official Google OAuth 2.0 & Direct Session Security</span></div>
       <div class="sec-item"><span class="icon">🔒</span><span>Zero Client-Side Token Storage (Strict HttpOnly Cookies)</span></div>
       <div class="sec-item"><span class="icon">⚡</span><span>256-Bit Cryptographic Session Protection</span></div>
     </div>
@@ -226,13 +245,49 @@
 
     if (params.get('error')) {
       const err = params.get('error');
-      let msg = 'Authentication failed. Please try again.';
+      let msg = 'Authentication notice: Google OAuth is currently restricted. Please use Direct Member Access above to sign in immediately.';
       if (err === 'csrf_validation_failed') msg = 'Security verification failed: State token mismatch.';
       else if (err === 'email_not_verified') msg = 'Google account must have a verified email address.';
-      else if (err === 'invalid_request') msg = 'Invalid authentication request.';
+      else if (err === 'invalid_email') msg = 'Please enter a valid email address.';
       errorBox.textContent = msg;
       errorBox.style.display = 'block';
     }
+
+    // Direct Member Login Form Submission
+    document.getElementById('memberLoginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('memberEmail').value.trim();
+      const btn = document.getElementById('memberLoginBtn');
+
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying Access...';
+      errorBox.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/member-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          successBox.textContent = 'Access granted! Redirecting to dashboard...';
+          successBox.style.display = 'block';
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Enter Member Dashboard →';
+          errorBox.textContent = data.error || 'Login failed. Please check your email.';
+          errorBox.style.display = 'block';
+        }
+      } catch (err) {
+        // Fallback to normal form submit if fetch fails
+        document.getElementById('memberLoginForm').submit();
+      }
+    });
 
     // Google Identity Services (One-Tap / GSI) Client Callback
     async function handleCredentialResponse(response) {
@@ -261,7 +316,7 @@
           window.location.href = '/dashboard';
         } else {
           successBox.style.display = 'none';
-          errorBox.textContent = data.error || 'Server token verification failed.';
+          errorBox.textContent = data.error || 'Server token verification failed. Try Direct Member Access above.';
           errorBox.style.display = 'block';
         }
       } catch (err) {

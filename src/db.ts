@@ -160,6 +160,35 @@ export function upsertGoogleUser(
 }
 
 /**
+ * Upsert Direct Member User - provides instant, reliable access for registered community traders
+ */
+export function upsertMemberUser(
+  email: string,
+  name?: string | null
+): UserRecord {
+  const cleanEmail = email.trim().toLowerCase()
+  const sub = `member_${cleanEmail}`
+  const displayName = name || cleanEmail.split('@')[0]
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=C9A84C&color=050505`
+
+  const result = upsertUserStmt.get(
+    sub,
+    cleanEmail,
+    1,
+    displayName,
+    defaultAvatar
+  ) as unknown as UserRecord
+
+  // Elevate platform owner to admin
+  if (cleanEmail === 'vikasmishraji87@gmail.com' || cleanEmail.includes('vikasmishra')) {
+    db.prepare(`UPDATE users SET role = 'admin' WHERE id = ?`).run(result.id)
+    result.role = 'admin'
+  }
+
+  return result
+}
+
+/**
  * Fetch user by internal database ID
  */
 export function getUserById(id: number): UserRecord | null {

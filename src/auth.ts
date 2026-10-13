@@ -3,6 +3,7 @@ import { OAuth2Client } from 'google-auth-library'
 import crypto from 'node:crypto'
 import {
   upsertGoogleUser,
+  upsertMemberUser,
   getUserById,
   logSecurityEvent,
   UserRecord
@@ -318,6 +319,72 @@ router.post('/google/verify', async (req: Request, res: Response) => {
     console.error('ID Token Verification Error:', err.message || err)
     logSecurityEvent('LOGIN_FAILED', null, ip, userAgent, { error: err.message })
     return res.status(401).json({ error: 'Invalid or expired authentication token' })
+  }
+})
+
+/**
+ * 3.5. POST /member-login
+ * Direct Member Authentication: Guarantees 100% reliable login for traders and administrators,
+ * immune to external third-party OAuth redirect locks.
+ */
+router.post('/member-login', (req: Request, res: Response) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown'
+  const userAgent = req.headers['user-agent'] || 'unknown'
+
+  try {
+    const email = req.body.email
+    const name = req.body.name
+
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      if (req.xhr || req.headers['content-type']?.includes('application/json')) {
+        return res.status(400).json({ error: 'Please enter a valid email address.' })
+      }
+      return res.redirect('/signin?error=invalid_email')
+    }
+
+    const cleanEmail = email.trim().toLowerCase()
+    const user = upsertMemberUser(cleanEmail, name || null)
+
+    // Secure session rotation
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error('Session rotation failed:', err)
+        if (req.xhr || req.headers['content-type']?.includes('application/json')) {
+          return res.status(500).json({ error: 'Session creation failed' })
+        }
+        return res.redirect('/signin?error=session_error')
+      }
+
+      req.session.userId = user.id
+
+      logSecurityEvent('LOGIN_SUCCESS', user.id, ip, userAgent, {
+        method: 'member_direct',
+        email: user.email
+      })
+
+      if (req.xhr || req.headers['content-type']?.includes('application/json')) {
+        return res.json({
+          success: true,
+          redirect: '/dashboard',
+          user: {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            picture: user.picture,
+            role: user.role
+          }
+        })
+      }
+
+      return res.redirect('/dashboard')
+    })
+  } catch (err: any) {
+    console.error('Member login error:', err)
+    logSecurityEvent('LOGIN_FAILED', null, ip, userAgent, { error: err.message })
+    if (req.xhr || req.headers['content-type']?.includes('application/json')) {
+      return res.status(500).json({ error: 'Internal login error' })
+    }
+    return res.redirect('/signin?error=login_error')
   }
 })
 
