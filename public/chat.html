@@ -302,7 +302,7 @@
       handleChatSubmit(new Event('submit'));
     }
 
-    function handleChatSubmit(e) {
+    async function handleChatSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('chatInput');
       const text = input.value.trim();
@@ -311,16 +311,29 @@
       addMessage(text, true);
       input.value = '';
 
-      // Generate response
-      setTimeout(() => {
-        const lower = text.toLowerCase();
-        let match = knowledge.find(k => k.triggers.some(t => lower.includes(t)));
-        if (match) {
-          addMessage(match.answer);
-        } else {
-          addMessage(`That's a great question about the markets. At Traders Hub, we evaluate all setups through multi-timeframe liquidity, institutional Fibonacci architecture, and strict 1:3+ risk-reward.<br><br>For specific setup reviews or direct feedback from Vikas Mishra, reach out to our official VIP desk on Telegram: <a href='https://t.me/+FNIBb-pEK0g4MGI1' target='_blank' style='color:var(--g)'>@YourstrulyVikasMishra</a>.`);
+      try {
+        const res = await fetch('/api/ai-chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        if (data && data.reply) {
+          addMessage(data.reply.replace(/\n/g, '<br>'));
+          return;
         }
-      }, 500);
+      } catch (err) {
+        console.warn('Backend AI fetch failed, using local knowledge base:', err);
+      }
+
+      // Instant local knowledge fallback
+      const lower = text.toLowerCase();
+      let match = knowledge.find(k => k.triggers.some(t => lower.includes(t)));
+      if (match) {
+        addMessage(match.answer);
+      } else {
+        addMessage(`That's a great question about the markets. At Traders Hub, we evaluate all setups through multi-timeframe liquidity, institutional Fibonacci architecture, and strict 1:3+ risk-reward.<br><br>For specific setup reviews or direct feedback from Vikas Mishra, reach out to our official VIP desk on Telegram: <a href='https://t.me/+FNIBb-pEK0g4MGI1' target='_blank' style='color:var(--g)'>@YourstrulyVikasMishra</a>.`);
+      }
     }
   </script>
 </body>

@@ -8,6 +8,7 @@ import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import authRouter, { handleLogout } from './auth.js'
 import paypalRouter from './paypal.js'
+import aiChatRouter from './aiChat.js'
 import { SqliteSessionStore } from './sessionStore.js'
 import { requireAuthApi, requireAuthPage, requireAdmin, verifyCsrfOrigin } from './middleware.js'
 import { db, getUserById, logSecurityEvent } from './db.js'
@@ -245,6 +246,12 @@ app.get('/api/admin/audit-logs', requireAuthApi, requireAdmin, (req: Request, re
 // 8. PAYMENT GATEWAY APIs (PayPal)
 // ==========================================
 app.use('/api/paypal', paypalRouter)
+
+// ==========================================
+// 8.5. SECURE AI CHATBOT ROUTE
+// ==========================================
+app.use('/api/ai-chat', aiChatRouter)
+app.use('/api/chat', aiChatRouter)
 
 // ==========================================
 // 9. STATIC ASSETS & PUBLIC PAGES

@@ -1273,25 +1273,8 @@ function like(btn){
   btn.textContent='❤️ '+(n+1);
 }
 
-// ── CHATBOT (OpenRouter) ──
+// ── CHATBOT (Embedded) ──
 // Security Hardened: Client API Key removed. Requests routed securely through /api/ai-chat
-const KEY="";
-const SYS=`You are the official AI assistant for Traders Hub — a premium trading education community run by Vikas Mishra with 5+ years of live market experience.
-
-Key facts:
-- Indian Markets: Dhan (0 brokerage, code OESVY25380) | Angel One (F&O data, code VX07092HDV)
-- Crypto: Delta Exchange FIU India (code TradewithAV) | MEXC altcoins (code 2uptt) | Weex no-KYC (code 5pyzd) | CoinDCX (invest)
-- Forex/Gold: XM 360 (code RH7QB) | Vantage Markets (code TradewithAV) | Elefin (code Theunfilteredtraders)
-- Prop Firms: FundedNext (vikas32) | Funding Pips (CDAD32CE, coupon FP200 = 25% off)
-- ICT Smart Money Concepts + proprietary Fibonacci (80-95% win rate)
-- Telegram: t.me/+FNIBb-pEK0g4MGI1 | WhatsApp: whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N
-- Email: tradershub@gmail.com | YouTube: Traders Hub
-- Free VIP: Open any broker + deposit $100 + DM @YourstrulyVikasMishra
-- Paid: Indian Group ₹5K/mo | Fib Group ₹7K/mo | Indian Course ₹10K | Fib Course ₹17K | Mentorship ₹30K/mo
-- Payment: UPI vikasmishraji87-2@oksbi | USDT BEP-20: 0x583c468d8408f588032870f51e1b3dd4af80ee0e
-
-Be conversational, warm, mix Hinglish naturally. Answer trading questions well — ICT, SMC, Fibonacci, order flow, prop firms, risk management. For unresolved queries → tradershub@gmail.com`;
-
 let chatH=[];
 async function sendChat(){
   const inp=document.getElementById('cin'),cms=document.getElementById('cms'),cty=document.getElementById('cty');
@@ -1302,30 +1285,29 @@ async function sendChat(){
   chatH.push({role:'user',content:t});
   cty.style.display='flex';cms.appendChild(cty);cms.scrollTop=cms.scrollHeight;
   try{
-    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    const res=await fetch('/api/ai-chat',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+KEY,'HTTP-Referer':location.origin||'https://tradershub.com','X-Title':'Traders Hub'},
-      body:JSON.stringify({model:'openai/gpt-4o-mini',max_tokens:500,messages:[{role:'system',content:SYS},...chatH]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:t,history:chatH.slice(0,-1)})
     });
     const d=await res.json();
     cty.style.display='none';
-    if(!res.ok){
-      const errMsg=d?.error?.message||('HTTP '+res.status);
+    if(!res.ok || d.success === false){
+      const errMsg=d?.error||('HTTP '+res.status);
       const eel=document.createElement('div');eel.className='cm cmb';
-      eel.innerHTML='⚠️ AI error: <strong>'+errMsg+'</strong><br><span style="font-size:10px;opacity:.7">Check OpenRouter credits/key at openrouter.ai/credits</span>';
+      eel.innerHTML='⚠️ AI note: <strong>'+errMsg+'</strong>';
       cms.appendChild(eel);cms.scrollTop=cms.scrollHeight;
       return;
     }
-    const reply=d?.choices?.[0]?.message?.content||'AI unavailable — email tradershub@gmail.com or DM on Telegram!';
+    const reply=d?.reply||d?.choices?.[0]?.message?.content||'AI unavailable — email tradershub@gmail.com or DM on Telegram!';
     chatH.push({role:'assistant',content:reply});
-    const bel=document.createElement('div');bel.className='cm cmb';bel.textContent=reply;
+    const bel=document.createElement('div');bel.className='cm cmb';
+    bel.innerHTML=reply.replace(/\n/g, '<br>');
     cms.appendChild(bel);cms.scrollTop=cms.scrollHeight;
   }catch(e){
     cty.style.display='none';
     const eel=document.createElement('div');eel.className='cm cmb';
-    eel.textContent = location.protocol==='file:'
-      ? '⚠️ AI chat works only when the site is hosted online (not opened as a local file). Upload to Netlify/Vercel — works instantly there. For now: tradershub@gmail.com'
-      : '⚠️ AI error: '+(e.message||'unknown')+' — email tradershub@gmail.com';
+    eel.textContent='⚠️ AI note: '+(e.message||'Server unreachable')+' — email tradershub@gmail.com';
     cms.appendChild(eel);cms.scrollTop=cms.scrollHeight;
   }
 }
@@ -1575,24 +1557,7 @@ document.querySelectorAll('.pc').forEach(card=>{
 });
 
 // ── AI CHATBOT (FLOATING BUTTON) ──
-// Security Hardened: Client API Key removed.
-const OR_KEY='';
-const AI_SYS=`You are the official AI assistant for Traders Hub — India's Top 1% Trading Community built by Vikas Mishra, full-time prop-firm-funded trader.
-
-Key facts:
-- Indian Markets: Dhan (0 brokerage, code OESVY25380) | Angel One (F&O data, code VX07092HDV)
-- Crypto: Delta Exchange FIU India (code TradewithAV) | MEXC altcoins (code 2uptt) | Weex no-KYC (code 5pyzd) | CoinDCX (invest)
-- Forex/Gold: XM 360 (code RH7QB) | Vantage Markets (code TradewithAV) | Elefin (code Theunfilteredtraders)
-- Prop Firms: FundedNext (vikas32) | Funding Pips (CDAD32CE, coupon FP200 = 25% off)
-- Strategy: ICT Smart Money Concepts + proprietary Fibonacci (80-95% win rate)
-- Telegram: t.me/+FNIBb-pEK0g4MGI1 | WhatsApp: whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N
-- Email: tradershub@gmail.com | YouTube: Traders Hub
-- Free VIP: Open any broker + deposit $100 + DM @YourstrulyVikasMishra on Telegram
-- Paid Services: Indian Group ₹5K/mo | Fib Group ₹7K/mo | Indian Course ₹10K | Fib Course ₹17K | Mentorship ₹30K/mo
-- Payment: UPI vikasmishraji87-2@oksbi | USDT BEP-20: 0x583c468d8408f588032870f51e1b3dd4af80ee0e
-
-Be warm, conversational, and mix Hinglish naturally. Answer trading questions about ICT, SMC, Fibonacci, order flow, prop firms, risk management. For unresolved queries direct to tradershub@gmail.com`;
-
+// Security Hardened: Client API Key removed. Requests routed securely through /api/ai-chat
 let aiHistory=[];
 
 const aiBtn=document.getElementById('ai-btn');
@@ -1646,44 +1611,36 @@ async function sendMsg(){
   aiMsgs.scrollTop=aiMsgs.scrollHeight;
   
   try{
-    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    const res=await fetch('/api/ai-chat',{
       method:'POST',
       headers:{
-        'Content-Type':'application/json',
-        'Authorization':'Bearer '+OR_KEY,
-        'HTTP-Referer':location.origin||'https://tradershub.com',
-        'X-Title':'Traders Hub AI'
+        'Content-Type':'application/json'
       },
       body:JSON.stringify({
-        model:'openai/gpt-4o-mini',
-        max_tokens:600,
-        messages:[{role:'system',content:AI_SYS},...aiHistory]
+        message:txt,
+        history:aiHistory.slice(0,-1)
       })
     });
     
     const data=await res.json();
     
-    if(!res.ok){
-      throw new Error(data?.error?.message||'API error '+res.status);
+    if(!res.ok || data.success === false){
+      throw new Error(data?.error||('API error '+res.status));
     }
     
-    const botMsg=data?.choices?.[0]?.message?.content||'Kuch error hua. Please email karo: tradershub@gmail.com';
+    const botMsg=data?.reply||data?.choices?.[0]?.message?.content||'Kuch error hua. Please email karo: tradershub@gmail.com';
     aiHistory.push({role:'assistant',content:botMsg});
     
     const botDiv=document.createElement('div');
     botDiv.className='ai-msg bot';
-    botDiv.textContent=botMsg;
+    botDiv.innerHTML=botMsg.replace(/\n/g, '<br>');
     aiMsgs.appendChild(botDiv);
     
   }catch(err){
     console.error('AI Error:',err);
     const errDiv=document.createElement('div');
     errDiv.className='ai-msg bot';
-    if(location.protocol==='file:'){
-      errDiv.innerHTML='⚠️ AI chat needs the site hosted online (not opened as a local file). Upload to Netlify/Vercel and it\'ll work fine. For now, email <strong>tradershub@gmail.com</strong>';
-    } else {
-      errDiv.innerHTML='⚠️ AI error: <strong>'+(err.message||'unknown')+'</strong><br><span style="font-size:10px;opacity:.7">If this says "No auth credentials" or "Insufficient credits", check your OpenRouter account balance at openrouter.ai/credits</span>';
-    }
+    errDiv.innerHTML='⚠️ AI note: <strong>'+(err.message||'Server error')+'</strong><br><span style="font-size:10px;opacity:.7">For instant support, email <strong>tradershub@gmail.com</strong> or contact @YourstrulyVikasMishra on Telegram.</span>';
     aiMsgs.appendChild(errDiv);
   }
   
