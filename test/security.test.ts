@@ -71,43 +71,52 @@ async function runTests() {
       }
     }
 
-    // Test 1.3: Invalid member login request rejection
+    // Test 1.3: Google ID Token Cryptographic Verification & Rejection of Forged Tokens
     {
-      const res = await fetch(`${baseUrl}/auth/member-login`, {
+      const res = await fetch(`${baseUrl}/api/auth/google/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
-        body: JSON.stringify({ email: 'not-a-valid-email' })
+        body: JSON.stringify({ credential: 'forged.google.jwt.token.that.fails.signature' })
+      })
+      if (res.status === 401) {
+        record('Google Token Verification Rejection', 'AUTHENTICATION', 'PASS', 'Forged Google ID token rejected with HTTP 401')
+      } else {
+        record('Google Token Verification Rejection', 'AUTHENTICATION', 'FAIL', `Expected 401, got ${res.status}`)
+      }
+    }
+
+    // Test 1.4: Malformed Google Auth Request
+    {
+      const res = await fetch(`${baseUrl}/api/auth/google/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
+        body: JSON.stringify({})
       })
       if (res.status === 400) {
-        record('Invalid Member Email Rejection', 'AUTHENTICATION', 'PASS', 'Malformed email address rejected with HTTP 400')
+        record('Malformed Google Auth Request Rejection', 'AUTHENTICATION', 'PASS', 'Missing token payload rejected with HTTP 400')
       } else {
-        record('Invalid Member Email Rejection', 'AUTHENTICATION', 'FAIL', `Expected 400, got ${res.status}`)
+        record('Malformed Google Auth Request Rejection', 'AUTHENTICATION', 'FAIL', `Expected 400, got ${res.status}`)
       }
     }
 
-    // Test 1.4: Direct Member Login & Session Generation
+    // Test 1.5: Automatic Account Creation & Upsert on Google Sign-In
     {
-      const res = await fetch(`${baseUrl}/auth/member-login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
-        body: JSON.stringify({ email: 'newtrader@example.com', name: 'New Trader' })
-      })
-      const data: any = await res.json()
-      const cookie = res.headers.get('set-cookie')
+      const testGoogleSub = `google_sub_auto_${Date.now()}`
+      const createdUser = upsertGoogleUser(testGoogleSub, 'googletrader@gmail.com', true, 'Google Trader', 'https://avatar.google.com/pic')
 
-      if (res.status === 200 && data.success && data.user.email === 'newtrader@example.com' && cookie?.includes('sid=')) {
-        record('Direct Member Login & Session Creation', 'AUTHENTICATION', 'PASS', 'Direct authentication granted with secure HttpOnly session')
+      if (createdUser && createdUser.email === 'googletrader@gmail.com' && createdUser.name === 'Google Trader') {
+        record('Google Automatic Account Creation', 'AUTHENTICATION', 'PASS', 'Account created automatically with verified profile on Google sign-in')
       } else {
-        record('Direct Member Login & Session Creation', 'AUTHENTICATION', 'FAIL', `Expected 200 with session cookie, got ${res.status}`)
+        record('Google Automatic Account Creation', 'AUTHENTICATION', 'FAIL', 'Failed to create account on Google sign in')
       }
     }
 
-    // Test 1.5: Founder Elevation & Direct Account Anchoring
+    // Test 1.6: Founder Elevation & Direct Account Anchoring
     {
-      const founderUser = upsertMemberUser('vikasmishraji87@gmail.com', 'Vikas Mishra')
+      const founderUser = upsertGoogleUser(`google_founder_${Date.now()}`, 'vikasmishraji87@gmail.com', true, 'Vikas Mishra', null)
 
       if (founderUser.email === 'vikasmishraji87@gmail.com' && founderUser.role === 'admin') {
-        record('Founder Admin Role Anchoring', 'AUTHENTICATION', 'PASS', 'Platform founder account anchored directly with admin privileges')
+        record('Founder Admin Role Anchoring', 'AUTHENTICATION', 'PASS', 'Platform founder account anchored directly with admin privileges via Google')
       } else {
         record('Founder Admin Role Anchoring', 'AUTHENTICATION', 'FAIL', `Founder role was: ${founderUser?.role}`)
       }

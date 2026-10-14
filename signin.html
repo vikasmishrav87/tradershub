@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Sign In — Traders Hub</title>
+<title>Sign In & Register — Traders Hub</title>
 <link rel="icon" type="image/jpeg" href="/logo.png">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/main.css">
+<!-- Official Google Identity Services SDK -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   body {
     background: #050505;
@@ -21,11 +23,11 @@
   .signin-container {
     max-width: 440px;
     width: 90%;
-    margin: 80px auto;
+    margin: 60px auto;
     background: #0A0A0A;
     border: 1px solid rgba(201, 168, 76, 0.25);
     border-radius: 8px;
-    padding: 40px 32px;
+    padding: 36px 32px;
     text-align: center;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(201, 168, 76, 0.05);
     position: relative;
@@ -41,29 +43,64 @@
     background: linear-gradient(90deg, transparent, #C9A84C, transparent);
   }
   .signin-logo {
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     border: 2px solid #C9A84C;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     object-fit: cover;
   }
   .signin-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 38px;
+    font-size: 36px;
     letter-spacing: 2px;
     color: #C9A84C;
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     line-height: 1;
   }
   .signin-sub {
     font-size: 13px;
     color: #888;
-    margin-bottom: 28px;
-    line-height: 1.6;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .google-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .google-hint {
+    font-size: 11px;
+    color: #999;
+    margin-top: 10px;
+  }
+  .google-hint span {
+    color: #00FF88;
+    font-weight: 600;
+  }
+  .divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 20px 0;
+    color: #555;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .divider span {
+    padding: 0 10px;
   }
   .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     text-align: left;
   }
   .form-label {
@@ -78,13 +115,13 @@
   .form-input {
     width: 100%;
     box-sizing: border-box;
-    padding: 13px 14px;
+    padding: 12px 14px;
     background: #141414;
     border: 1px solid rgba(201, 168, 76, 0.3);
     border-radius: 4px;
     color: #FFF;
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 14px;
+    font-size: 13px;
     outline: none;
     transition: all 0.2s ease;
   }
@@ -99,7 +136,7 @@
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 14px 20px;
+    padding: 13px 20px;
     background: linear-gradient(135deg, #C9A84C, #E8C96A);
     color: #050505;
     border: none;
@@ -111,12 +148,11 @@
     cursor: pointer;
     text-decoration: none;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 20px rgba(201, 168, 76, 0.3);
-    margin-top: 8px;
+    box-shadow: 0 4px 20px rgba(201, 168, 76, 0.25);
   }
   .signin-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(201, 168, 76, 0.45);
+    box-shadow: 0 6px 25px rgba(201, 168, 76, 0.4);
     background: linear-gradient(135deg, #D4B458, #F0D277);
   }
   .signin-btn:disabled {
@@ -125,12 +161,12 @@
     transform: none;
   }
   .security-badges {
-    margin-top: 28px;
-    padding-top: 22px;
+    margin-top: 24px;
+    padding-top: 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     font-size: 11px;
     color: #777;
     text-align: left;
@@ -142,7 +178,7 @@
   }
   .sec-item span.icon {
     color: #C9A84C;
-    font-size: 14px;
+    font-size: 13px;
   }
   .alert-error {
     background: rgba(255, 68, 68, 0.12);
@@ -151,7 +187,7 @@
     padding: 12px;
     border-radius: 4px;
     font-size: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     display: none;
     text-align: left;
   }
@@ -162,7 +198,7 @@
     padding: 12px;
     border-radius: 4px;
     font-size: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     display: none;
     text-align: left;
   }
@@ -180,17 +216,46 @@
     </div>
   </nav>
 
-  <!-- Sign In Card -->
+  <!-- Sign In & Account Creation Card -->
   <div class="signin-container">
     <img src="/logo.png" alt="Traders Hub" class="signin-logo" onerror="this.src='/logo.jpg'">
-    <h1 class="signin-title">MEMBER SIGN IN</h1>
-    <p class="signin-sub">Enter your email address to access your verified profile, VIP resources, and community desks.</p>
+    <h1 class="signin-title" id="pageTitle">SIGN IN OR CREATE ACCOUNT</h1>
+    <p class="signin-sub" id="pageSub">Continue with your Google account to sign in or automatically create your verified profile.</p>
 
     <!-- Error & Success Alert Boxes -->
     <div id="errorBox" class="alert-error"></div>
     <div id="successBox" class="alert-success"></div>
 
-    <!-- Direct Member Sign In Form -->
+    <!-- Official Google Identity Services Container -->
+    <div class="google-wrapper">
+      <!-- Google One-Tap Setup -->
+      <div id="g_id_onload"
+           data-client_id="754703406217-iul1vka4si0cmgj0hi6kee7hf1cqinkb.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-auto_prompt="true"
+           data-context="signin">
+      </div>
+
+      <!-- Render Official Google Sign-In Button -->
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="rectangular"
+           data-theme="outline"
+           data-text="continue_with"
+           data-size="large"
+           data-logo_alignment="left"
+           data-width="376">
+      </div>
+
+      <div class="google-hint">
+        ⚡ <span>Instant Account Creation:</span> Signing in with Google automatically sets up your verified member profile.
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider"><span>OR CONTINUE WITH EMAIL</span></div>
+
+    <!-- Direct Member Sign In / Register Form -->
     <form id="memberLoginForm" action="/auth/member-login" method="POST">
       <div class="form-group">
         <label class="form-label" for="memberEmail">Your Email Address</label>
@@ -207,7 +272,7 @@
 
     <!-- Security Guarantee Badges -->
     <div class="security-badges">
-      <div class="sec-item"><span class="icon">🛡️</span><span>Direct Server-Managed Session Authentication</span></div>
+      <div class="sec-item"><span class="icon">🛡️</span><span>Official Google Identity & Direct Session Security</span></div>
       <div class="sec-item"><span class="icon">🔒</span><span>Zero Client-Side Token Storage (Strict HttpOnly Cookies)</span></div>
       <div class="sec-item"><span class="icon">⚡</span><span>256-Bit Cryptographic Session Protection</span></div>
     </div>
@@ -218,10 +283,14 @@
   </footer>
 
   <script>
-    // Check URL parameters for feedback or errors
     const params = new URLSearchParams(window.location.search);
     const errorBox = document.getElementById('errorBox');
     const successBox = document.getElementById('successBox');
+
+    if (params.get('mode') === 'signup') {
+      document.getElementById('pageTitle').textContent = 'CREATE YOUR ACCOUNT';
+      document.getElementById('pageSub').textContent = 'Sign in with Google to create your verified member account instantly.';
+    }
 
     if (params.get('logged_out')) {
       successBox.textContent = 'You have been securely logged out.';
@@ -233,9 +302,45 @@
       let msg = 'Authentication error. Please try again.';
       if (err === 'invalid_email') msg = 'Please enter a valid email address.';
       else if (err === 'session_error') msg = 'Session initialization failed. Please try again.';
-      else if (err === 'login_error') msg = 'Unable to complete login. Please try again.';
+      else if (err === 'login_error') msg = 'Unable to complete sign-in. Please try again.';
       errorBox.textContent = msg;
       errorBox.style.display = 'block';
+    }
+
+    // Google Identity Services (GIS) Callback
+    async function handleCredentialResponse(response) {
+      if (!response || !response.credential) {
+        errorBox.textContent = 'No authentication credential received from Google.';
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      errorBox.style.display = 'none';
+      successBox.textContent = 'Verifying with Traders Hub and setting up your account...';
+      successBox.style.display = 'block';
+
+      try {
+        const res = await fetch('/api/auth/google/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          successBox.textContent = 'Authentication successful! Redirecting to dashboard...';
+          successBox.style.display = 'block';
+          window.location.href = data.redirect || '/dashboard';
+        } else {
+          successBox.style.display = 'none';
+          errorBox.textContent = data.error || 'Google verification failed. Please try email login below.';
+          errorBox.style.display = 'block';
+        }
+      } catch (err) {
+        successBox.style.display = 'none';
+        errorBox.textContent = 'Connection error during Google verification. Try direct email access below.';
+        errorBox.style.display = 'block';
+      }
     }
 
     // Direct Member Login Form Submission
@@ -270,7 +375,6 @@
           errorBox.style.display = 'block';
         }
       } catch (err) {
-        // Fallback to normal form submit if fetch fails
         document.getElementById('memberLoginForm').submit();
       }
     });

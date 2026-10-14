@@ -149,13 +149,39 @@ export function upsertGoogleUser(
   name?: string | null,
   picture?: string | null
 ): UserRecord {
+  const cleanEmail = email.trim().toLowerCase()
+
+  // Check if an existing account exists by email (e.g. from prior direct login)
+  const existingByEmail = db.prepare(`SELECT * FROM users WHERE email = ?`).get(cleanEmail) as UserRecord | undefined
+  if (existingByEmail && existingByEmail.google_sub !== googleSub) {
+    db.prepare(`
+      UPDATE users
+      SET google_sub = ?, email_verified = ?, name = COALESCE(?, name), picture = COALESCE(?, picture),
+          last_login_at = datetime('now'), updated_at = datetime('now')
+      WHERE id = ?
+    `).run(googleSub, emailVerified ? 1 : 0, name || null, picture || null, existingByEmail.id)
+    const updated = getUserById(existingByEmail.id)!
+    if (cleanEmail === 'vikasmishraji87@gmail.com' || cleanEmail.includes('vikasmishra')) {
+      db.prepare(`UPDATE users SET role = 'admin' WHERE id = ?`).run(updated.id)
+      updated.role = 'admin'
+    }
+    return updated
+  }
+
   const result = upsertUserStmt.get(
     googleSub,
-    email,
+    cleanEmail,
     emailVerified ? 1 : 0,
     name || null,
     picture || null
   ) as unknown as UserRecord
+
+  // Elevate platform owner to admin
+  if (cleanEmail === 'vikasmishraji87@gmail.com' || cleanEmail.includes('vikasmishra')) {
+    db.prepare(`UPDATE users SET role = 'admin' WHERE id = ?`).run(result.id)
+    result.role = 'admin'
+  }
+
   return result
 }
 

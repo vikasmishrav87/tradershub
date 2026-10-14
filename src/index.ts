@@ -38,6 +38,8 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'", // Needed for inline scripts on existing marketing pages
+          'https://accounts.google.com',
+          'https://apis.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.paypalobjects.com',
@@ -47,6 +49,7 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
+          'https://accounts.google.com',
           'https://*.paypal.com'
         ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
@@ -62,6 +65,7 @@ app.use(
         ],
         connectSrc: [
           "'self'",
+          'https://accounts.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://api-m.paypal.com',
@@ -70,6 +74,7 @@ app.use(
         ],
         frameSrc: [
           "'self'",
+          'https://accounts.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com',
@@ -79,6 +84,7 @@ app.use(
         baseUri: ["'self'"],
         formAction: [
           "'self'",
+          'https://accounts.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com'
@@ -87,7 +93,7 @@ app.use(
       }
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginOpenerPolicy: { policy: 'same-origin' },
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
@@ -263,6 +269,13 @@ app.get('/signin', (req: Request, res: Response) => {
 
 app.get('/login', (req: Request, res: Response) => {
   res.redirect('/signin')
+})
+
+app.get(['/signup', '/register'], (req: Request, res: Response) => {
+  if (req.session.userId) {
+    return res.redirect('/dashboard')
+  }
+  res.redirect('/signin?mode=signup')
 })
 
 // Protected Dashboard page (Server-side route protection)
