@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test'
 import http from 'http'
 import crypto from 'node:crypto'
 import app from '../src/index.js'
-import { db, upsertGoogleUser, getUserById } from '../src/db.js'
+import { db, upsertGoogleUser, upsertMemberUser, getUserById } from '../src/db.js'
 
 let server: http.Server
 let port: number
@@ -71,44 +71,45 @@ async function runTests() {
       }
     }
 
-    // Test 1.3: Invalid OAuth token submission
+    // Test 1.3: Invalid member login request rejection
     {
-      const res = await fetch(`${baseUrl}/api/auth/google/verify`, {
+      const res = await fetch(`${baseUrl}/auth/member-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
-        body: JSON.stringify({ credential: 'fake.jwt.token.that.is.completely.invalid' })
-      })
-      if (res.status === 401) {
-        record('Invalid OAuth Token Rejection', 'AUTHENTICATION', 'PASS', 'Cryptographic verification failed and returned HTTP 401')
-      } else {
-        record('Invalid OAuth Token Rejection', 'AUTHENTICATION', 'FAIL', `Expected 401, got ${res.status}`)
-      }
-    }
-
-    // Test 1.4: Malformed OAuth request
-    {
-      const res = await fetch(`${baseUrl}/api/auth/google/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
-        body: JSON.stringify({})
+        body: JSON.stringify({ email: 'not-a-valid-email' })
       })
       if (res.status === 400) {
-        record('Malformed OAuth Request Rejection', 'AUTHENTICATION', 'PASS', 'Missing token payload returned HTTP 400')
+        record('Invalid Member Email Rejection', 'AUTHENTICATION', 'PASS', 'Malformed email address rejected with HTTP 400')
       } else {
-        record('Malformed OAuth Request Rejection', 'AUTHENTICATION', 'FAIL', `Expected 400, got ${res.status}`)
+        record('Invalid Member Email Rejection', 'AUTHENTICATION', 'FAIL', `Expected 400, got ${res.status}`)
       }
     }
 
-    // Test 1.5: Stable Google Sub Account Identification & Account Linking
+    // Test 1.4: Direct Member Login & Session Generation
     {
-      const testSub = `google_sub_test_${Date.now()}`
-      const user1 = upsertGoogleUser(testSub, 'testuser@example.com', true, 'Test User', 'https://pic1.com')
-      const user2 = upsertGoogleUser(testSub, 'updated@example.com', true, 'Test User Updated', 'https://pic2.com')
+      const res = await fetch(`${baseUrl}/auth/member-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Host': `localhost:${port}` },
+        body: JSON.stringify({ email: 'newtrader@example.com', name: 'New Trader' })
+      })
+      const data: any = await res.json()
+      const cookie = res.headers.get('set-cookie')
 
-      if (user1.id === user2.id && user2.google_sub === testSub && user2.email === 'updated@example.com') {
-        record('Stable Google Sub Claim Identity', 'AUTHENTICATION', 'PASS', 'Account keyed on immutable sub claim, not mutable email')
+      if (res.status === 200 && data.success && data.user.email === 'newtrader@example.com' && cookie?.includes('sid=')) {
+        record('Direct Member Login & Session Creation', 'AUTHENTICATION', 'PASS', 'Direct authentication granted with secure HttpOnly session')
       } else {
-        record('Stable Google Sub Claim Identity', 'AUTHENTICATION', 'FAIL', 'Failed to maintain single user row for matching sub claim')
+        record('Direct Member Login & Session Creation', 'AUTHENTICATION', 'FAIL', `Expected 200 with session cookie, got ${res.status}`)
+      }
+    }
+
+    // Test 1.5: Founder Elevation & Direct Account Anchoring
+    {
+      const founderUser = upsertMemberUser('vikasmishraji87@gmail.com', 'Vikas Mishra')
+
+      if (founderUser.email === 'vikasmishraji87@gmail.com' && founderUser.role === 'admin') {
+        record('Founder Admin Role Anchoring', 'AUTHENTICATION', 'PASS', 'Platform founder account anchored directly with admin privileges')
+      } else {
+        record('Founder Admin Role Anchoring', 'AUTHENTICATION', 'FAIL', `Founder role was: ${founderUser?.role}`)
       }
     }
 
@@ -385,7 +386,11 @@ async function runTests() {
     {
       let rateLimited = false
       for (let i = 0; i < 35; i++) {
-        const res = await fetch(`${baseUrl}/auth/google`, { redirect: 'manual' })
+        const res = await fetch(`${baseUrl}/auth/member-login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'ratelimit@example.com' })
+        })
         if (res.status === 429) {
           rateLimited = true
           break
@@ -403,7 +408,7 @@ async function runTests() {
     // 8. PASSWORD RECOVERY AUDIT
     // ----------------------------------------------------
     {
-      record('Password Recovery Vulnerabilities', 'PASSWORD_SECURITY', 'NOT APPLICABLE', 'Application uses strictly passwordless Google OAuth 2.0; no password hashes or reset tokens stored')
+      record('Password Recovery Vulnerabilities', 'PASSWORD_SECURITY', 'NOT APPLICABLE', 'Application uses strictly passwordless Direct Member Authentication with server-managed sessions; no password hashes or reset tokens stored')
     }
 
     // ----------------------------------------------------

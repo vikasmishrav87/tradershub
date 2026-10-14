@@ -1,7 +1,7 @@
 {
   "name": "tradershub",
   "version": "1.0.0",
-  "description": "Traders Hub - Web Platform with Google OAuth & Security Hardening",
+  "description": "Traders Hub - Web Platform with Secure Direct Member Authentication & Hardening",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",

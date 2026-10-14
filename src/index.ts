@@ -38,8 +38,6 @@ app.use(
         scriptSrc: [
           "'self'",
           "'unsafe-inline'", // Needed for inline scripts on existing marketing pages
-          'https://accounts.google.com',
-          'https://apis.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.paypalobjects.com',
@@ -49,14 +47,14 @@ app.use(
           "'self'",
           "'unsafe-inline'",
           'https://fonts.googleapis.com',
-          'https://accounts.google.com',
           'https://*.paypal.com'
         ],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
         imgSrc: [
           "'self'",
           'data:',
-          'https://lh3.googleusercontent.com', // Google profile photos
+          'https://ui-avatars.com',
+          'https://lh3.googleusercontent.com',
           'https://*.googleusercontent.com',
           'https://www.paypalobjects.com',
           'https://*.paypalobjects.com',
@@ -64,7 +62,6 @@ app.use(
         ],
         connectSrc: [
           "'self'",
-          'https://accounts.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://api-m.paypal.com',
@@ -73,7 +70,6 @@ app.use(
         ],
         frameSrc: [
           "'self'",
-          'https://accounts.google.com', // Google One-Tap and iframe auth
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com',
@@ -83,7 +79,6 @@ app.use(
         baseUri: ["'self'"],
         formAction: [
           "'self'",
-          'https://accounts.google.com',
           'https://www.paypal.com',
           'https://*.paypal.com',
           'https://www.sandbox.paypal.com'
@@ -91,8 +86,8 @@ app.use(
         frameAncestors: ["'none'"]
       }
     },
-    crossOriginEmbedderPolicy: false, // Allow Google OAuth popups
-    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: { policy: 'same-origin' },
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
