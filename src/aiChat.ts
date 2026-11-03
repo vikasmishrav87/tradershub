@@ -23,8 +23,10 @@ Key community details:
 - Forex/Gold: XM 360 (code RH7QB) | Vantage Markets (code TradewithAV) | Elefin (code Theunfilteredtraders)
 - Prop Firms: FundedNext (code vikas32) | Funding Pips (code CDAD32CE, coupon FP200 = 25% off)
 - Core Methodology: ICT Smart Money Concepts + proprietary Fibonacci (80-95% win rate)
-- Telegram: t.me/+FNIBb-pEK0g4MGI1 | WhatsApp: whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N
-- Email: tradershub@gmail.com | YouTube: Traders Hub
+- Telegram: https://t.me/Tradershubog | WhatsApp: https://www.whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N
+- Email: tradershub87@gmail.com | YouTube: https://www.youtube.com/@Tradershub_87 & https://www.youtube.com/@UnfilteredTrader-v
+- Instagram: https://www.instagram.com/tradershubog | Discord: https://discord.com/invite/VKX8fvzku
+- Twitter/X: https://x.com/TradingwithAV | Threads: https://www.threads.com/@tradershubog | Zora: https://zora.co/@tradershub | Linktree: https://linktr.ee/tradershub87
 - Free VIP Access: Open an account with any partner broker + deposit $100 + DM @YourstrulyVikasMishra on Telegram
 - Paid Programs: Indian Group ₹5K/mo | Fib Group ₹7K/mo | Indian Course ₹10K | Fib Course ₹17K | Mentorship ₹30K/mo
 - Payment: UPI vikasmishraji87-2@oksbi | USDT BEP-20: 0x583c468d8408f588032870f51e1b3dd4af80ee0e
@@ -32,7 +34,7 @@ Key community details:
 Style & Tone:
 - Be conversational, knowledgeable, warm, and naturally mix Hindi and English (Hinglish) where appropriate.
 - Answer questions on ICT, SMC, Order Blocks, Liquidity Sweeps, Fair Value Gaps (FVG), Fibonacci levels, and prop firm rules accurately.
-- For personal queries, VIP access approval, or payment confirmations, guide users to contact @YourstrulyVikasMishra on Telegram or email tradershub@gmail.com.`
+- For personal queries, VIP access approval, or payment confirmations, guide users to contact @YourstrulyVikasMishra on Telegram or email tradershub87@gmail.com.`
 
 // Community knowledge fallback in case external API key is expired or unconfigured
 const KNOWLEDGE_FALLBACKS: Array<{ triggers: string[]; reply: string }> = [
@@ -76,7 +78,7 @@ export function getFallbackReply(userText: string): string {
   if (matched) {
     return matched.reply
   }
-  return "Traders Hub AI Coach: At Traders Hub, we analyze markets through multi-timeframe liquidity sweeps, institutional Fibonacci confluence, and strict risk-reward management.\n\nFor real-time setups, personalized portfolio feedback, or VIP entry, connect directly with Vikas Mishra on Telegram: @YourstrulyVikasMishra or email tradershub@gmail.com."
+  return "Traders Hub AI Coach: At Traders Hub, we analyze markets through multi-timeframe liquidity sweeps, institutional Fibonacci confluence, and strict risk-reward management.\n\nFor real-time setups, personalized portfolio feedback, or VIP entry, connect directly with Vikas Mishra on Telegram: @YourstrulyVikasMishra or email tradershub87@gmail.com."
 }
 
 interface ChatMessage {
