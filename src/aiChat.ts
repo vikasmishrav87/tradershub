@@ -26,7 +26,7 @@ Key community details:
 - Telegram: https://t.me/Tradershubog | WhatsApp: https://www.whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N
 - Email: tradershub87@gmail.com | YouTube: https://www.youtube.com/@Tradershub_87 & https://www.youtube.com/@UnfilteredTrader-v
 - Instagram: https://www.instagram.com/tradershubog | Discord: https://discord.com/invite/VKX8fvzku
-- Twitter/X: https://x.com/TradingwithAV | Threads: https://www.threads.com/@tradershubog | Zora: https://zora.co/@tradershub | Linktree: https://linktr.ee/tradershub87
+- Twitter/X: https://x.com/TradingwithAV | LinkedIn: https://www.linkedin.com/in/tradershub/ | Threads: https://www.threads.com/@tradershubog | Zora: https://zora.co/@tradershub | Linktree: https://linktr.ee/tradershub87
 - Free VIP Access: Open an account with any partner broker + deposit $100 + DM @YourstrulyVikasMishra on Telegram
 - Paid Programs: Indian Group ₹5K/mo | Fib Group ₹7K/mo | Indian Course ₹10K | Fib Course ₹17K | Mentorship ₹30K/mo
 - Payment: UPI vikasmishraji87-2@oksbi | USDT BEP-20: 0x583c468d8408f588032870f51e1b3dd4af80ee0e
