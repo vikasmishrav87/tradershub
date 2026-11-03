@@ -46,12 +46,12 @@ nav.solid{background:rgba(5,5,5,0.98);backdrop-filter:blur(30px);border-bottom:1
 .nbtn.fill:hover{background:var(--g2)}
 
 /* MOBILE NAV TOGGLE (Three Dash Button) */
-.nav-toggle{display:none;background:rgba(201,168,76,0.08);border:1px solid var(--lng);color:var(--g);padding:7px 8px;border-radius:4px;cursor:pointer;flex-direction:column;justify-content:space-between;align-items:center;width:38px;height:34px;box-sizing:border-box;transition:all .3s ease;z-index:1002}
-.nav-toggle:hover{background:rgba(201,168,76,0.18);border-color:var(--g)}
-.nav-toggle .bar{display:block;width:20px;height:2px;background:var(--g);border-radius:2px;transition:all 0.3s ease}
-.nav-toggle.active .bar:nth-child(1){transform:translateY(8px) rotate(45deg)}
-.nav-toggle.active .bar:nth-child(2){opacity:0}
-.nav-toggle.active .bar:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+.nav-toggle{display:none;background:rgba(201,168,76,0.08);border:1px solid var(--lng);color:var(--g);padding:0;border-radius:4px;cursor:pointer;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:40px;height:36px;box-sizing:border-box;transition:all .25s ease;z-index:1002;flex-shrink:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none}
+.nav-toggle:hover,.nav-toggle:focus{background:rgba(201,168,76,0.2);border-color:var(--g);outline:none}
+.nav-toggle .bar{display:block;width:20px;height:2px;background:var(--g);border-radius:2px;transition:transform .25s ease,opacity .2s ease;pointer-events:none}
+.nav-toggle.active .bar:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-toggle.active .bar:nth-child(2){opacity:0;transform:scaleX(0)}
+.nav-toggle.active .bar:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 .mobile-only-link{display:none}
 
 /* ====== CANVAS HERO ====== */
@@ -401,41 +401,45 @@ footer{background:#000;padding:36px 48px 20px;border-top:1px solid var(--ln)}
 .ft-logo span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--g);letter-spacing:3px}
 .ft-disc{max-width:1240px;margin:16px auto 0;font-size:9px;color:#222;line-height:1.8;text-align:center}
 
-@media(max-width:960px){
+@media(max-width:1024px){
   nav{padding:0 20px}
   .nav-toggle{display:flex}
   .nlinks{display:none}
   .nlinks.open{
     display:flex !important;
-    position:absolute;
+    position:fixed !important;
     top:64px;
     left:0;
-    width:100%;
+    right:0;
+    width:100vw;
     flex-direction:column;
     background:rgba(8,8,8,0.98);
     backdrop-filter:blur(30px);
+    -webkit-backdrop-filter:blur(30px);
     border-bottom:1px solid var(--lng);
-    padding:20px 24px 28px;
-    gap:4px;
-    z-index:1001;
-    box-shadow:0 20px 40px rgba(0,0,0,0.9);
+    padding:16px 20px 28px;
+    gap:0;
+    z-index:9999;
+    box-shadow:0 20px 50px rgba(0,0,0,0.95);
     max-height:calc(100vh - 64px);
     overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
   }
-  .nlinks.open li{list-style:none;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .nlinks.open li{list-style:none;border-bottom:1px solid rgba(255,255,255,0.06);width:100%}
   .nlinks.open a{
     display:block;
-    padding:11px 0;
-    font-size:13px;
+    padding:13px 4px;
+    font-size:12px;
     letter-spacing:2px;
     color:var(--w);
     text-transform:uppercase;
-    font-weight:500;
+    font-weight:600;
     transition:all .2s;
+    width:100%;
   }
-  .nlinks.open a:hover{color:var(--g);padding-left:6px}
+  .nlinks.open a:hover,.nlinks.open a:active{color:var(--g);padding-left:10px}
   .mobile-only-link{display:block}
-  .nbtn-sub{display:none}
+  .nbtn-sub{display:none !important}
   .nbtn{padding:7px 14px;font-size:9px}
   section{padding:80px 20px}
   .about-grid,.yt-grid,.chat-grid,.one-grid,.bk-grid{grid-template-columns:1fr}
@@ -445,13 +449,22 @@ footer{background:#000;padding:36px 48px 20px;border-top:1px solid var(--ln)}
   .fl-badge{left:0;bottom:-10px}
 }
 
-@media(max-width:480px){
+@media(max-width:640px){
   nav{padding:0 14px}
-  .nlogo span{font-size:16px;letter-spacing:2px}
-  .nright{gap:8px}
-  .nbtn.fill{padding:6px 12px;font-size:9px}
-  .nav-toggle{width:34px;height:32px;padding:7px 6px}
-  .nav-toggle .bar{width:18px}
+  .nlogo img{width:28px;height:28px}
+  .nlogo span{font-size:16px;letter-spacing:1.5px}
+  .nright{gap:8px;align-items:center}
+  .nbtn.fill{padding:6px 12px;font-size:9px;letter-spacing:1px}
+  .nav-toggle{width:38px;height:34px}
+}
+
+@media(max-width:380px){
+  nav{padding:0 10px}
+  .nlogo span{font-size:14px;letter-spacing:1px}
+  .nright{gap:6px}
+  .nbtn.fill{padding:5px 8px;font-size:8px;letter-spacing:0.5px}
+  .nav-toggle{width:34px;height:32px;gap:4px}
+  .nav-toggle .bar{width:17px}
 }
 
 /* ======== LUSION-LEVEL PREMIUM OVERRIDES ======== */
@@ -580,7 +593,7 @@ nav::after{content:'';position:absolute;bottom:0;left:5%;right:5%;height:1px;bac
     <a href="/signin" class="nbtn nbtn-sub" style="border-color:var(--g);color:var(--g)">Sign In</a>
     <a href="https://www.whatsapp.com/channel/0029VbCxmiMG8l5IOlc7nO0N" target="_blank" class="nbtn nbtn-sub">📱 WhatsApp</a>
     <a href="https://t.me/Tradershubog" target="_blank" class="nbtn fill">Join Telegram</a>
-    <button class="nav-toggle" id="navToggle" onclick="document.getElementById('navLinks').classList.toggle('open'); this.classList.toggle('active')" aria-label="Toggle navigation">
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
       <span class="bar"></span>
       <span class="bar"></span>
       <span class="bar"></span>
@@ -1223,22 +1236,65 @@ if(p3){
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>20));
 document.getElementById('nav').classList.add('solid');
 
-const navLinks = document.getElementById('navLinks');
-const navToggle = document.getElementById('navToggle');
-if (navToggle && navLinks) {
-  document.querySelectorAll('#navLinks a').forEach(a => {
-    a.addEventListener('click', () => {
+(function initMobileNav() {
+  const navLinks = document.getElementById('navLinks');
+  const navToggle = document.getElementById('navToggle');
+  const nav = document.getElementById('nav');
+  if (!navToggle || !navLinks) return;
+
+  function toggleMenu(e) {
+    if (e) {
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+    }
+    const isOpen = navLinks.classList.toggle('open');
+    navToggle.classList.toggle('active', isOpen);
+    navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    if (nav && isOpen) nav.classList.add('solid');
+  }
+
+  // Global access
+  window.toggleNavMenu = toggleMenu;
+
+  // Single reliable click handler with stopPropagation
+  navToggle.onclick = toggleMenu;
+
+  // Instant touch handler for mobile
+  navToggle.addEventListener('touchend', function(e) {
+    toggleMenu(e);
+  }, { passive: false });
+
+  // Close when tapping any link inside mobile drawer
+  document.querySelectorAll('#navLinks a').forEach(function(link) {
+    link.addEventListener('click', function() {
       navLinks.classList.remove('open');
       navToggle.classList.remove('active');
+      navToggle.setAttribute('aria-expanded', 'false');
     });
   });
-  document.addEventListener('click', (e) => {
-    if (!navLinks.contains(e.target) && !navToggle.contains(e.target) && navLinks.classList.contains('open')) {
-      navLinks.classList.remove('open');
-      navToggle.classList.remove('active');
+
+  // Close when clicking outside
+  document.addEventListener('click', function(e) {
+    if (navLinks.classList.contains('open')) {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+      }
     }
   });
-}
+
+  // Close when tapping outside on touchscreens
+  document.addEventListener('touchend', function(e) {
+    if (navLinks.classList.contains('open')) {
+      if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
+        navLinks.classList.remove('open');
+        navToggle.classList.remove('active');
+        navToggle.setAttribute('aria-expanded', 'false');
+      }
+    }
+  }, { passive: true });
+})();
 
 // ── SCROLL REVEAL ──
 const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('on');ro.unobserve(x.target)}}),{threshold:.06});
